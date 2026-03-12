@@ -68,7 +68,10 @@ while ($row = $res->fetch()) {
                                 <p class="card-text text-muted small"><?php echo $s['descricao']; ?></p>
                                 <div class="mt-auto pt-3">
                                     <span class="d-block mb-3 fw-bold text-dark">RS$<?php echo number_format($s['valor'], 2, ',', '.'); ?></span>
-                                    <button class="btn btn-dark w-100 btn-sm">Contratar Agora</button>
+                                    <form action="checkout_stripe.php" method="POST">
+                                        <input type="hidden" name="servico_id" value="<?php echo $s['id']; ?>">
+                                        <button type="submit" class="btn btn-dark w-100 btn-sm">Contratar Agora</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

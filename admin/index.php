@@ -35,6 +35,18 @@ $config = [];
 while ($row = $res->fetch()) {
     $config[$row['chave']] = $row['valor'];
 }
+
+// Consulta para os Cards de Resumo
+$totalVendas = $pdo->query("SELECT COUNT(*) FROM vendas WHERE status = 'pago'")->fetchColumn();
+$faturamento = $pdo->query("SELECT SUM(valor_pago) FROM vendas WHERE status = 'pago'")->fetchColumn();
+$vendasPendentes = $pdo->query("SELECT COUNT(*) FROM vendas WHERE status = 'pendente'")->fetchColumn();
+
+// Consulta para a Tabela de Vendas
+$sqlVendas = "SELECT v.*, s.titulo as servico_nome 
+              FROM vendas v 
+              LEFT JOIN servicos s ON v.servico_id = s.id 
+              ORDER BY v.data_venda DESC";
+$listaVendas = $pdo->query($sqlVendas)->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -157,6 +169,88 @@ while ($row = $res->fetch()) {
                         </td>
                     </tr>
                     <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="container my-5">
+    
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white p-3">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase small fw-bold opacity-75">Faturamento Total</h6>
+                        <h3 class="mb-0 fw-bold">R$ <?php echo number_format($faturamento ?? 0, 2, ',', '.'); ?></h3>
+                    </div>
+                    <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-success text-white p-3">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase small fw-bold opacity-75">Vendas Concluídas</h6>
+                        <h3 class="mb-0 fw-bold"><?php echo $totalVendas; ?></h3>
+                    </div>
+                    <i class="bi bi-cart-check fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-warning text-dark p-3">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="text-uppercase small fw-bold opacity-75">Aguardando Pagamento</h6>
+                        <h3 class="mb-0 fw-bold"><?php echo $vendasPendentes; ?></h3>
+                    </div>
+                    <i class="bi bi-clock-history fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-list-stars me-2 text-primary"></i>Histórico de Contratações</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID Pedido</th>
+                        <th>Data</th>
+                        <th>Serviço</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Stripe ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($listaVendas)): ?>
+                        <tr><td colspan="6" class="text-center py-4 text-muted">Nenhuma venda registrada ainda.</td></tr>
+                    <?php else: ?>
+                        <?php foreach ($listaVendas as $v): ?>
+                        <tr>
+                            <td><span class="badge bg-light text-dark border">#<?php echo str_pad($v['id'], 5, '0', STR_PAD_LEFT); ?></span></td>
+                            <td class="small text-muted"><?php echo date('d/m/Y H:i', strtotime($v['data_venda'])); ?></td>
+                            <td class="fw-bold"><?php echo $v['servico_nome'] ?? 'Serviço Removido'; ?></td>
+                            <td>R$ <?php echo number_format($v['valor_pago'], 2, ',', '.'); ?></td>
+                            <td>
+                                <?php if($v['status'] == 'pago'): ?>
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">Pago</span>
+                                <?php elseif($v['status'] == 'pendente'): ?>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning px-3">Pendente</span>
+                                <?php else: ?>
+                                    <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3">Cancelado</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="small text-secondary font-monospace"><?php echo $v['stripe_checkout_id'] ?: '---'; ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
