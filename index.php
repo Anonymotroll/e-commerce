@@ -1,6 +1,13 @@
 <?php
 require_once 'config/db.php';
 
+// Configurações
+$res = $pdo->query("SELECT chave, valor FROM config");
+$config = [];
+while ($row = $res->fetch()) {
+    $config[$row['chave']] = $row['valor'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -30,33 +37,15 @@ require_once 'config/db.php';
                         <a class="nav-link px-3" href="#servicos">Serviços</a>
                     </li>
                     <li class="nav-item ms-lg-3">
-                        <a class="btn btn-outline-primary fw-bold px-4 rounded-pill" href="#contato">Fale Conosco</a>
+                        <a class="btn btn-outline-primary fw-bold px-4 rounded-pill" href="https://wa.me/<?php echo $config['whatsapp']; ?>" target="_blank">Fale Conosco</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
     <!-- Cabeçalho -->
-    <header class="py-5 bg-dark text-white position-relative overflow-hidden" style="min-height: 80vh; display: flex; align-items: center;">
-        <div class="container position-relative" style="z-index: 2;">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <span class="badge bg-primary mb-3 p-2 px-3 text-uppercase fw-bold">Transformação Digital</span>
-                    <h1 class="display-3 fw-bold mb-4">Soluções Inteligentes para <span class="text-primary">Negócios Modernos</span></h1>
-                    <p class="lead mb-5 text-secondary">Ajudamos sua empresa a escalar através de infraestrutura robusta, segurança de dados e consultoria estratégica em TI.</p>
-                    <div class="d-grid d-md-flex gap-3">
-                        <a href="#contato" class="btn btn-primary btn-lg px-4 py-3 fw-bold">Fale com um Especialista</a>
-                        <a href="#servicos" class="btn btn-outline-light btn-lg px-4 py-3">Conhecer Serviços</a>
-                    </div>
-                </div>
-                <div class="col-lg-6 d-none d-lg-block">
-                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800" alt="Consultoria TI" class="img-fluid rounded-4 shadow-lg">
-                </div>
-            </div>
-        </div>
-        <div class="position-absolute top-0 end-0 opacity-10" style="font-size: 20rem; transform: translate(30%, -30%);">
-            <i class="bi bi-cpu"></i>
-        </div>
+    <header style="display: flex; align-items: center; max-height: 80vh; overflow: hidden;">
+        <img src="<?php echo $config['banner_url']; ?>" alt="Banner" class="img-fluid w-100">
     </header>
     <!-- Sessão de serviços -->
     <section id="servicos" class="py-5 bg-light">
@@ -91,12 +80,13 @@ require_once 'config/db.php';
     <!-- Rodapé -->
     <footer class="bg-dark text-white py-4 mt-5" id="contato">
         <div class="container text-center">
-            <p>@T.I. Consutoria 2026</p>
-        <div >
-        </div>
-            <small>Contato: (61) 99563-1303</small>
+            <p>@T.I. Consultoria 2026</p>
+            <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3">
+                <small><a class="text-white text-decoration-none" href="mailto:<?php echo $config['email_contato']; ?>"target="_blank"><?php echo $config['email_contato']; ?></a></small>
+                <small><a class="text-white text-decoration-none" href="tel:<?php echo $config['telefone']; ?>" target="_blank">Telefone: <?php echo $config['telefone']; ?></a></small>
+                <small><a class="text-white text-decoration-none" href="https://wa.me/<?php echo $config['whatsapp']; ?>" target="_blank">WhatsApp: <?php echo $config['whatsapp']; ?></a></small>
+            </div>
         </div>
     </footer>
-
 </body>
 </html>

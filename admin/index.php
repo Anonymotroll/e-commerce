@@ -28,8 +28,13 @@ if (isset($_GET['excluir'])) {
     exit;
 }
 
-// Busca todos os serviços
+// Busca todos os serviços e configuração
 $servicos = $pdo->query("SELECT * FROM servicos ORDER BY id DESC")->fetchAll();
+$res = $pdo->query("SELECT chave, valor FROM config");
+$config = [];
+while ($row = $res->fetch()) {
+    $config[$row['chave']] = $row['valor'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -66,6 +71,43 @@ $servicos = $pdo->query("SELECT * FROM servicos ORDER BY id DESC")->fetchAll();
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoServico">
             <i class="bi bi-plus-lg"></i> Novo Serviço
         </button>
+        <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#modalConfig">
+            <i class="bi bi-gear"></i> Ajustes do Site
+        </button>
+
+        <div class="modal fade" id="modalConfig" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Configurações Gerais</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="editar_config.php" method="POST" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Novo Banner (Substituir)</label>
+                                <input type="file" name="banner" class="form-control" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">E-mail</label>
+                                <input type="email" name="email_contato" class="form-control" value="<?php echo $config['email_contato']; ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Telefone</label>
+                                <input type="text" name="telefone" class="form-control" value="<?php echo $config['telefone']; ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">WhatsApp (Só números)</label>
+                                <input type="text" name="whatsapp" class="form-control" value="<?php echo $config['whatsapp']; ?>">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary w-100">Atualizar Site</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <?php if (isset($_GET['msg'])): ?>
